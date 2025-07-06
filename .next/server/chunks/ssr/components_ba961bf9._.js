@@ -155,10 +155,23 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v3$2f
 const schema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v3$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
     file: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v3$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].instanceof(File, {
         message: 'Invalid FIle'
-    }).refine((file)=>file.size <= 15 * 1024 * 1024).refine((file)=>file.type.startsWith('application/pdf'), 'File must be a PDF')
+    }).refine((file)=>file.size <= 15 * 1024 * 1024).refine((file)=>file.type.startsWith('application/pdf'), {
+        message: 'File must be a PDF'
+    })
 });
 function UploadForm() {
-    const handleSubmit = (e)=>{
+    const { startUpload, routeConfig } = UploadForm.useUploadThing('pdfUploader', {
+        onClientUploadComplete: ()=>{
+            console.log("uploaded successfully!");
+        },
+        onUploadError: (error)=>{
+            console.error("error occurred while uploading", error);
+        },
+        onUploadBegin: ({ file })=>{
+            console.log("upload has begun for", file);
+        }
+    });
+    const handleSubmit = async (e)=>{
         e.preventDefault();
         console.log("Form submitted");
         const formData = new FormData(e.currentTarget);
@@ -172,8 +185,14 @@ function UploadForm() {
             console.log(validatedFields.error.flatten().fieldErrors.file?.[0] ?? 'Invalid file');
             return;
         }
-    // schema validation with zod 
-    // upload the file to Upload Things 
+        // schema validation with zod 
+        // upload the file to Upload Things 
+        const resp = await startUpload([
+            file
+        ]);
+        if (!resp) {
+            return;
+        }
     //parse the pdf int lang chain
     // Summarized the pdf into the valuable insides
     // save the summary to the database
@@ -185,12 +204,12 @@ function UploadForm() {
             onSubmit: handleSubmit
         }, void 0, false, {
             fileName: "[project]/components/upload/upload-form.tsx",
-            lineNumber: 42,
+            lineNumber: 62,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/upload/upload-form.tsx",
-        lineNumber: 41,
+        lineNumber: 61,
         columnNumber: 9
     }, this);
 }
